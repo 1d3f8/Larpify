@@ -1,0 +1,39 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk zip unzip git libffi-dev libssl-dev libsqlite3-dev
+
+      - name: Install buildozer and cython
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cython==0.29.33 buildozer
+
+      - name: Build APK
+        working-directory: mobile_spartify
+        run: |
+          buildozer android debug -v
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: spartify-apk
+          path: mobile_spartify/bin/*.apk
