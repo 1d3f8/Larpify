@@ -58,7 +58,7 @@ jobs:
             echo "Created symlink from $HOME/.buildozer/android/platform/android-sdk -> $HOME/Android/Sdk"
           fi
 
-      - name: Diagnostic: list SDK and check for aidl/build-tools
+      - name: "Diagnostic: list SDK and check for aidl/build-tools"
         run: |
           set -eux
           ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}
