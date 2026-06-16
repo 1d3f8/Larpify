@@ -1,0 +1,16 @@
+{
+  "accent_color": "#675fb6",
+  "secondary_color": "#2d2f36",
+  "text_color": "#dfd9f0",
+  "button_color": "#7055bf",
+  "menu_base_color": "#7055bf",
+  "bg_color": "#121212",
+  "divider_color": "#3a3a3a",
+  "dividers_enabled": true,
+  "shadows_enabled": true,
+  "shadow_intensity": 6,
+  "rounded_corners": true,
+  "animations_enabled": true,
+  "bg_darkness": 0,
+  "slider_style": "larpify"
+}
