@@ -22,6 +22,31 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openjdk-11-jdk zip unzip git libffi-dev libssl-dev libsqlite3-dev
 
+      - name: Install Android SDK command-line tools and build-tools
+        run: |
+          set -eux
+          export ANDROID_SDK_ROOT=$HOME/Android/Sdk
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          cd $HOME
+          # download command line tools (versioned archive)
+          curl -fSLo commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip
+          unzip -o commandlinetools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          # move to 'latest' folder as expected by some tools
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools/latest
+          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools/* $ANDROID_SDK_ROOT/cmdline-tools/latest/ || true
+          rm -f commandlinetools.zip
+          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
+          yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses || true
+          sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+        env:
+          JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
+
+      - name: Export Android env vars
+        run: |
+          echo "ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
+          echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
+          echo "PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$HOME/Android/Sdk/platform-tools:$PATH" >> $GITHUB_ENV
+
       - name: Install buildozer and cython
         run: |
           python -m pip install --upgrade pip
