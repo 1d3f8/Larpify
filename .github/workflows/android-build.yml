@@ -7,6 +7,8 @@ on:
 
 jobs:
   build-apk:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -123,12 +125,12 @@ jobs:
           name: spartify-apk
           path: mobile_spartify/bin/*.apk
 
-      - name: Create GitHub release and upload APK
+      - id: create_release
+        name: Create GitHub release
         if: always()
         uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ci-build-${{ github.run_id }}
           release_name: "CI Build ${{ github.run_id }}"
           body: "Automated CI build for run ${{ github.run_id }}"
@@ -138,8 +140,6 @@ jobs:
       - name: Upload APK to release
         if: always()
         uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: mobile_spartify/bin/*.apk
