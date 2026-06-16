@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, mobile-build ]
   workflow_dispatch:
 
 jobs:
@@ -46,6 +46,42 @@ jobs:
           echo "ANDROID_SDK_ROOT=$HOME/Android/Sdk" >> $GITHUB_ENV
           echo "ANDROID_HOME=$HOME/Android/Sdk" >> $GITHUB_ENV
           echo "PATH=$HOME/Android/Sdk/cmdline-tools/latest/bin:$HOME/Android/Sdk/platform-tools:$PATH" >> $GITHUB_ENV
+
+      - name: Make Buildozer SDK symlink
+        run: |
+          # Buildozer expects SDK under ~/.buildozer/android/platform/android-sdk
+          mkdir -p $HOME/.buildozer/android/platform
+          if [ -d "$HOME/.buildozer/android/platform/android-sdk" ]; then
+            echo "Buildozer android-sdk already exists"
+          else
+            ln -s $HOME/Android/Sdk $HOME/.buildozer/android/platform/android-sdk || true
+            echo "Created symlink from $HOME/.buildozer/android/platform/android-sdk -> $HOME/Android/Sdk"
+          fi
+
+      - name: Diagnostic: list SDK and check for aidl/build-tools
+        run: |
+          set -eux
+          ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-$HOME/Android/Sdk}
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          echo "Listing Buildozer SDK path: $HOME/.buildozer/android/platform/android-sdk"
+          ls -la $HOME/.buildozer/android/platform || true
+          ls -la $HOME/.buildozer/android/platform/android-sdk || true
+          echo "Listing installed Android SDK root"
+          ls -la $ANDROID_SDK_ROOT || true
+          echo "Listing build-tools directory"
+          ls -la $ANDROID_SDK_ROOT/build-tools || true
+          for dir in $ANDROID_SDK_ROOT/build-tools/*; do
+            echo "--- checking $dir ---"
+            ls -la "$dir" || true
+            if [ -x "$dir/aidl" ]; then
+              echo "Found aidl at $dir/aidl"
+              "$dir/aidl" --version || true
+            fi
+          done
+          echo "Which aidl (if in PATH):" || true
+          which aidl || true
+          echo "Cmdline-tools listing"
+          ls -la $ANDROID_SDK_ROOT/cmdline-tools || true
 
       - name: Install buildozer and cython
         run: |
