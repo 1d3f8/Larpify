@@ -9,6 +9,8 @@ jobs:
   build-apk:
     permissions:
       contents: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -103,6 +105,36 @@ jobs:
         working-directory: mobile_spartify
         run: |
           buildozer android debug -v || true
+
+      - name: Buildozer diagnostics
+        if: always()
+        run: |
+          set -eux
+          echo "PWD=$(pwd)"
+          echo "Listing repository root"
+          ls -la || true
+          echo "Listing mobile_spartify directory"
+          ls -la mobile_spartify || true
+          echo "Listing mobile_spartify/.buildozer"
+          ls -la mobile_spartify/.buildozer || true
+          echo "Finding any APK files in project"
+          find mobile_spartify -type f -name "*.apk" -print || true
+          echo "Finding buildozer log files"
+          find mobile_spartify/.buildozer -type f -name "*.log" -print || true
+          first_log=$(find mobile_spartify/.buildozer -type f -name "*.log" -print | head -n1 || true)
+          if [ -n "$first_log" ]; then
+            echo "--- Tail of $first_log ---"
+            tail -n 200 "$first_log" || true
+          else
+            echo "No buildozer log files found"
+          fi
+
+      - name: Upload full .buildozer directory (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-all
+          path: mobile_spartify/.buildozer
 
       - name: Upload Buildozer logs (if any)
         if: always()
