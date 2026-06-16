@@ -38,6 +38,12 @@ jobs:
           export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH
           yes | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses || true
           sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+          # Create legacy tools/bin path expected by some tooling (Buildozer looks for tools/bin/sdkmanager)
+          mkdir -p $ANDROID_SDK_ROOT/tools/bin
+          if [ -x "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+            ln -sf $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $ANDROID_SDK_ROOT/tools/bin/sdkmanager || true
+            chmod +x $ANDROID_SDK_ROOT/tools/bin/sdkmanager || true
+          fi
         env:
           JAVA_HOME: /usr/lib/jvm/java-11-openjdk-amd64
 
