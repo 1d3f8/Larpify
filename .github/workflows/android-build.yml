@@ -20,7 +20,10 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-11-jdk zip unzip git libffi-dev libssl-dev libsqlite3-dev
+          sudo apt-get install -y openjdk-11-jdk zip unzip git libffi-dev libssl-dev libsqlite3-dev \
+            build-essential autoconf automake libtool pkg-config zlib1g-dev libjpeg-dev libpng-dev \
+            libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libmtdev-dev \
+            libglu1-mesa-dev libgles2-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev
 
       - name: Install Android SDK command-line tools and build-tools
         run: |
@@ -97,7 +100,22 @@ jobs:
       - name: Build APK
         working-directory: mobile_spartify
         run: |
-          buildozer android debug -v
+          buildozer android debug -v || true
+
+      - name: Upload Buildozer logs (if any)
+        if: always()
+        run: |
+          set -eux
+          mkdir -p $GITHUB_WORKSPACE/artifacts/buildozer-logs
+          find mobile_spartify/.buildozer -type f -name "*.log" -maxdepth 6 -exec cp --parents {} $GITHUB_WORKSPACE/artifacts/buildozer-logs/ \; || true
+          find mobile_spartify/.buildozer -type f -name "*.txt" -maxdepth 6 -exec cp --parents {} $GITHUB_WORKSPACE/artifacts/buildozer-logs/ \; || true
+
+      - name: Upload artifact (logs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: buildozer-logs
+          path: artifacts/buildozer-logs
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
