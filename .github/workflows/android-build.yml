@@ -25,7 +25,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y openjdk-11-jdk zip unzip git libffi-dev libssl-dev libsqlite3-dev \
-            build-essential autoconf automake libtool pkg-config zlib1g-dev libjpeg-dev libpng-dev \
+            build-essential autoconf automake libtool libtool-bin pkg-config zlib1g-dev libjpeg-dev libpng-dev \
             libfreetype6-dev libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libmtdev-dev \
             libglu1-mesa-dev libgles2-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev \
             m4 gettext autoconf-archive autotools-dev
