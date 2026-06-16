@@ -122,3 +122,26 @@ jobs:
         with:
           name: spartify-apk
           path: mobile_spartify/bin/*.apk
+
+      - name: Create GitHub release and upload APK
+        if: always()
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ci-build-${{ github.run_id }}
+          release_name: "CI Build ${{ github.run_id }}"
+          body: "Automated CI build for run ${{ github.run_id }}"
+          draft: false
+          prerelease: true
+
+      - name: Upload APK to release
+        if: always()
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: mobile_spartify/bin/*.apk
+          asset_name: spartify-${{ github.run_id }}.apk
+          asset_content_type: application/vnd.android.package-archive
