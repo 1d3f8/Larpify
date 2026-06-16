@@ -1,0 +1,12 @@
+# Build artifacts
+.bin/
+bin/
+.buildozer/
+
+# Python
+__pycache__/
+*.pyc
+
+# Android
+*.apk
+*.aab
